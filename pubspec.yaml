@@ -5,11 +5,11 @@ description: >-
 repository: https://github.com/fiatjaf/dart-bip340
 
 environment:
-  sdk: ">=2.12.0-0 <3.0.0"
+  sdk: ">=2.10.0-0 <3.0.0"
 
 dependencies:
-  crypto: >=2.1.0
-  convert: >=2.1.0
-  elliptic: ^0.1.0
+  crypto: ">=2.1.0"
+  convert: ">=2.1.0"
+  elliptic: "^0.1.0"
 
 dev_dependencies:

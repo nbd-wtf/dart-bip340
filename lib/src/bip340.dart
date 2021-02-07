@@ -1,59 +1,68 @@
+import 'dart:core';
 import 'dart:math';
 import 'package:convert/convert.dart';
 import 'package:elliptic/elliptic.dart';
-import './secp256k1.dart';
 import './helpers.dart';
 
-String sign(BigInt privateKey, String message, String aux) {
-  bmessage = hex.decode(message);
-  baux = hex.decode(aux);
+var secp256k1 = EllipticCurve.fromHexes(
+  "secp256k1",
+  'fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f',
+  '0000000000000000000000000000000000000000000000000000000000000007',
+  'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141',
+  '79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798',
+  '483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8',
+  256,
+);
 
-  if ((privateKey < 1) || (privateKey > (secp256k1.n - one))) {
-    throw new Error("the private key must be an integer in the range 1..n-1");
+String sign(BigInt privateKey, String message, String aux) {
+  var bmessage = hex.decode(message);
+  var baux = hex.decode(aux);
+
+  if ((privateKey < one) || (privateKey > (secp256k1.N - one))) {
+    throw new Error();
   }
 
-  P = secp256k1.scalarBaseMul(bigToBytes(privateKey));
+  AffinePoint P = secp256k1.scalarBaseMul(bigToBytes(privateKey));
 
   BigInt d;
   if (P.Y & one == zero) {
     d = privateKey;
   } else {
-    d = secp256k1.n - privateKey;
+    d = secp256k1.N - privateKey;
   }
 
-  BigInt k0;
   if (baux.length != 32) {
-    throw new Error("aux must be 32 bytes!");
+    throw new Error();
   }
 
-  t = d ^ taggedHash("BIP0340/aux", aux);
+  var t = d ^ bigFromBytes(taggedHash("BIP0340/aux", baux));
 
-  k0 = bigFromBytes(
+  BigInt k0 = bigFromBytes(
         taggedHash(
           "BIP0340/nonce",
           bigToBytes(t) + bigToBytes(P.X) + bmessage,
         ),
       ) %
-      secp2561.n;
+      secp256k1.N;
 
   if (k0.sign == 0) {
-    throw new Error("k0 is zero");
+    throw new Error();
   }
 
-  R = secp256k1.scalarBaseMul(bigToBytes(k0));
+  AffinePoint R = secp256k1.scalarBaseMul(bigToBytes(k0));
 
   BigInt k;
   if (R.Y & one == 0) {
     // is even
     k = k0;
   } else {
-    k = secp256k1.n - k0;
+    k = secp256k1.N - k0;
   }
 
-  rX = bigToBytes(R.X);
+  var rX = bigToBytes(R.X);
 
   List<int> signature =
-      rx + bigToBytes((k + getE(P, rx, message) + d) % secp256k1.n);
+      rX + bigToBytes((k + getE(P, rX, bmessage) + d) % secp256k1.N);
 
   return hex.encode(signature);
 }
@@ -62,8 +71,8 @@ BigInt getE(AffinePoint P, List<int> rX, List<int> m) {
   return bigFromBytes(
         taggedHash(
           "BIP0340/challenge",
-          rx + bigToBytes(P.X) + m,
+          rX + bigToBytes(P.X) + m,
         ),
       ) %
-      secp256k1.n;
+      secp256k1.N;
 }
