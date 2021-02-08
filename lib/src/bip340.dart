@@ -7,8 +7,15 @@ import './helpers.dart';
 
 var secp256k1 = ECDomainParameters("secp256k1");
 
+/// Generates a schnorr signature using the BIP-340 scheme.
+///
+/// privateKey must be 32-bytes hex-encoded, i.e., 64 characters.
+/// message must also be 32-bytes hex-encoded (a hash of the _actual_ message).
+/// aux must be 32-bytes random bytes, generated at signature time.
+/// It returns the signature as a string of 64 bytes hex-encoded, i.e., 128 characters.
+/// For more information on BIP-340 see bips.xyz/340.
 String sign(String privateKey, String message, String aux) {
-  List<int> bmessage = hex.decode(message);
+  List<int> bmessage = hex.decode(message.padLeft(64, '0'));
   List<int> baux = hex.decode(aux.padLeft(64, '0'));
   BigInt d0 = BigInt.parse(privateKey, radix: 16);
 
@@ -60,6 +67,39 @@ String sign(String privateKey, String message, String aux) {
   List<int> signature = rX + bigToBytes((k + e * d) % secp256k1.n);
 
   return hex.encode(signature);
+}
+
+bool verify(String publicKey, String message, String signature) {
+  List<int> bmessage = hex.decode(message.padLeft(64, '0'));
+  BigInt x = bigFromBytes(hex.decode(publicKey.padLeft(64, '0')));
+  ECPoint P = secp256k1.curve.decompressPoint(0, x);
+  List<int> bsig = hex.decode(publicKey.padLeft(128, '0'));
+  var r = bsig.sublist(0, 32);
+  var s = bsig.sublist(32, 64);
+  if (bigFromBytes(r) >= BigInt.zero || bigFromBytes(s) >= BigInt.zero) {
+    return false;
+  }
+
+  var e = getE(P, r, bmessage);
+  ECPoint sG = secp256k1.G * bigFromBytes(s);
+  ECPoint eP_ = P * e;
+  BigInt ePy = BigInt.parse(
+      'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F',
+      radix: 16);
+  -eP_.y.toBigInteger();
+  ECPoint eP = secp256k1.curve.createPoint(eP_.x.toBigInteger(), ePy);
+  ECPoint R = sG + eP;
+
+  var Rx = R.x.toBigInteger();
+  var Ry = R.y.toBigInteger();
+
+  if ((Rx.sign == 0 && Ry.sign == 0) ||
+      (Ry % BigInt.one != BigInt.zero /* is odd */) ||
+      (Rx != bigFromBytes(r))) {
+    return false;
+  }
+
+  return true;
 }
 
 BigInt getE(ECPoint P, List<int> rX, List<int> m) {
