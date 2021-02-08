@@ -1,5 +1,5 @@
 name: bip340
-version: 0.0.1
+version: 0.0.2
 description: >-
   BIP340 (Schnorr) signature and verification.
 repository: https://github.com/fiatjaf/dart-bip340
