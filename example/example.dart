@@ -14,15 +14,24 @@ void main() async {
   );
   for (var i = 1; i < vectors.length; i++) {
     var line = vectors[i];
+    var errorMessage = line[7].length == 0 ? "<blank>" : line[7];
+
     if (line[3].length > 0) {
       var sig = bip340.sign(line[1], line[4], line[3]);
       var expected = line[5].toLowerCase();
       if (sig != expected) {
-        print("error on line $i: ${line[7]}.");
-        print("got signature '$sig', expected '${expected}'.");
+        print("SIGN error on line $i: ${errorMessage}.");
+        print("  got signature '$sig', expected '${expected}'.");
       } else {
-        print("line $i is ok.");
+        print("SIGN line $i is correct.");
       }
+    }
+
+    var ok = bip340.verify(line[2], line[4], line[5]);
+    if (ok && line[6] == 'TRUE' || !ok && line[6] == 'FALSE') {
+      print("VERIFY line $i is correct.");
+    } else {
+      print("VERIFY error on line $i: ${errorMessage}.");
     }
   }
 }
