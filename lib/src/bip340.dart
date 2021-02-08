@@ -6,6 +6,9 @@ import 'package:pointycastle/ecc/api.dart';
 import './helpers.dart';
 
 var secp256k1 = ECDomainParameters("secp256k1");
+var curveP = BigInt.parse(
+    'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F',
+    radix: 16);
 
 /// Generates a schnorr signature using the BIP-340 scheme.
 ///
@@ -71,34 +74,49 @@ String sign(String privateKey, String message, String aux) {
 
 bool verify(String publicKey, String message, String signature) {
   List<int> bmessage = hex.decode(message.padLeft(64, '0'));
-  BigInt x = bigFromBytes(hex.decode(publicKey.padLeft(64, '0')));
-  ECPoint P = secp256k1.curve.decompressPoint(0, x);
-  List<int> bsig = hex.decode(publicKey.padLeft(128, '0'));
+
+  List<int> bsig = hex.decode(signature.padLeft(128, '0'));
   var r = bsig.sublist(0, 32);
   var s = bsig.sublist(32, 64);
-  if (bigFromBytes(r) >= BigInt.zero || bigFromBytes(s) >= BigInt.zero) {
+  if (bigFromBytes(r) >= curveP || bigFromBytes(s) >= secp256k1.n) {
     return false;
   }
 
-  var e = getE(P, r, bmessage);
+  // turn public key into a point (we only get y, but we find out the y)
+  BigInt x = bigFromBytes(hex.decode(publicKey.padLeft(64, '0')));
+  BigInt y;
+  try {
+    y = liftX(x);
+  } on Error {
+    return false;
+  }
+  ECPoint P = secp256k1.curve.createPoint(x, y);
+
+  // not sure what these things mean
+  BigInt e = getE(P, r, bmessage);
   ECPoint sG = secp256k1.G * bigFromBytes(s);
   ECPoint eP_ = P * e;
-  BigInt ePy = BigInt.parse(
-      'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F',
-      radix: 16);
-  -eP_.y.toBigInteger();
+  BigInt ePy = curveP - eP_.y.toBigInteger();
   ECPoint eP = secp256k1.curve.createPoint(eP_.x.toBigInteger(), ePy);
-  ECPoint R = sG + eP;
 
+  // R is something important
+  ECPoint R = sG + eP;
+  if (R.isInfinity) {
+    return false;
+  }
+
+  // now that we have R we get its coords
   var Rx = R.x.toBigInteger();
   var Ry = R.y.toBigInteger();
 
+  // and we them in these checks which I don't understand
   if ((Rx.sign == 0 && Ry.sign == 0) ||
-      (Ry % BigInt.one != BigInt.zero /* is odd */) ||
+      (Ry % BigInt.two != BigInt.zero /* is odd */) ||
       (Rx != bigFromBytes(r))) {
     return false;
   }
 
+  // the checks passed, it means the signature is good
   return true;
 }
 
@@ -110,4 +128,17 @@ BigInt getE(ECPoint P, List<int> rX, List<int> m) {
         ),
       ) %
       secp256k1.n;
+}
+
+// returns Y for this X
+BigInt liftX(BigInt x) {
+  if (x >= curveP) {
+    throw new Error();
+  }
+  var ySq = (x.modPow(BigInt.from(3), curveP) + BigInt.from(7)) % curveP;
+  var y = ySq.modPow((curveP + BigInt.one) ~/ BigInt.from(4), curveP);
+  if (y.modPow(BigInt.two, curveP) != ySq) {
+    throw new Error();
+  }
+  return y % BigInt.two == BigInt.zero /* even */ ? y : curveP - y;
 }

@@ -28,10 +28,12 @@ void main() async {
     }
 
     var ok = bip340.verify(line[2], line[4], line[5]);
-    if (ok && line[6] == 'TRUE' || !ok && line[6] == 'FALSE') {
+    var expected = line[6].toLowerCase();
+    if ((ok && expected == 'true') || (!ok && expected == 'false')) {
       print("VERIFY line $i is correct.");
     } else {
       print("VERIFY error on line $i: ${errorMessage}.");
+      print("  verify() returned '$ok', expected '$expected'");
     }
   }
 }
