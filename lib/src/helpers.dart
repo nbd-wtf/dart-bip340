@@ -19,7 +19,11 @@ List<int> taggedHash(String tag, List<int> msg) {
 }
 
 List<int> bigToBytes(BigInt integer) {
-  return hex.decode(integer.toRadixString(16));
+  var hexNum = integer.toRadixString(16);
+  if (hexNum.length % 2 == 1) {
+    hexNum = '0' + hexNum;
+  }
+  return hex.decode(hexNum);
 }
 
 BigInt bigFromBytes(List<int> bytes) {

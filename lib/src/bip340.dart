@@ -15,21 +15,23 @@ var secp256k1 = EllipticCurve.fromHexes(
   256,
 );
 
-String sign(BigInt privateKey, String message, String aux) {
+String sign(String privateKey, String message, String aux) {
   var bmessage = utf8.encode(message);
-  var baux = hex.decode(aux);
+  var baux = hex.decode(aux.padLeft(64, '0'));
+  var s = BigInt.parse(privateKey, radix: 16);
 
-  if ((privateKey < one) || (privateKey > (secp256k1.N - one))) {
+  if ((s < one) || (s > (secp256k1.N - one))) {
     throw new Error();
   }
 
-  AffinePoint P = secp256k1.scalarBaseMul(bigToBytes(privateKey));
+  AffinePoint P =
+      secp256k1.scalarBaseMul(hex.decode(privateKey.padLeft(64, '0')));
 
   BigInt d;
   if (P.Y & one == zero) {
-    d = privateKey;
+    d = s;
   } else {
-    d = secp256k1.N - privateKey;
+    d = secp256k1.N - s;
   }
 
   if (baux.length != 32) {

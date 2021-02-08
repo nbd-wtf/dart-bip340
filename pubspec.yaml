@@ -13,3 +13,5 @@ dependencies:
   elliptic: "^0.1.0"
 
 dev_dependencies:
+  http: "^0.12.2"
+  csv: "^4.1.0"
