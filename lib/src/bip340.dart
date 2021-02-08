@@ -72,6 +72,14 @@ String sign(String privateKey, String message, String aux) {
   return hex.encode(signature);
 }
 
+/// Verifies a schnorr signature using the BIP-340 scheme.
+///
+/// publicKey must be 32-bytes hex-encoded, i.e., 64 characters
+///   (if you have a pubkey with 33 bytes just remove the first one).
+/// message must also be 32-bytes hex-encoded (a hash of the _actual_ message).
+/// signature must be 64-bytes hex-encoded, i.e., 128 characters.
+/// It returns true if the signature is valid, false otherwise.
+/// For more information on BIP-340 see bips.xyz/340.
 bool verify(String publicKey, String message, String signature) {
   List<int> bmessage = hex.decode(message.padLeft(64, '0'));
 
@@ -120,17 +128,18 @@ bool verify(String publicKey, String message, String signature) {
   return true;
 }
 
-BigInt getE(ECPoint P, List<int> rX, List<int> m) {
-  return bigFromBytes(
-        taggedHash(
-          "BIP0340/challenge",
-          rX + bigToBytes(P.x.toBigInteger()) + m,
-        ),
-      ) %
-      secp256k1.n;
+/// Produces the public key from a private key
+///
+/// Takes privateKey, a 32-bytes hex-encoded string, i.e. 64 characters.
+/// Returns a public key as also 32-bytes hex-encoded.
+String getPublicKey(String privateKey) {
+  var d0 = BigInt.parse(privateKey, radix: 16);
+  ECPoint P = secp256k1.G * d0;
+  return P.x.toBigInteger().toRadixString(16);
 }
 
-// returns Y for this X
+// helper methods:
+// liftX returns Y for this X
 BigInt liftX(BigInt x) {
   if (x >= curveP) {
     throw new Error();
@@ -141,4 +150,15 @@ BigInt liftX(BigInt x) {
     throw new Error();
   }
   return y % BigInt.two == BigInt.zero /* even */ ? y : curveP - y;
+}
+
+// this one I don't know what it means
+BigInt getE(ECPoint P, List<int> rX, List<int> m) {
+  return bigFromBytes(
+        taggedHash(
+          "BIP0340/challenge",
+          rX + bigToBytes(P.x.toBigInteger()) + m,
+        ),
+      ) %
+      secp256k1.n;
 }
