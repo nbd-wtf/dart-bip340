@@ -5,11 +5,6 @@ import 'package:convert/convert.dart';
 import 'package:pointycastle/ecc/api.dart';
 import './helpers.dart';
 
-var secp256k1 = ECDomainParameters("secp256k1");
-var curveP = BigInt.parse(
-    'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F',
-    radix: 16);
-
 /// Generates a schnorr signature using the BIP-340 scheme.
 ///
 /// privateKey must be 32-bytes hex-encoded, i.e., 64 characters.
@@ -136,29 +131,4 @@ String getPublicKey(String privateKey) {
   var d0 = BigInt.parse(privateKey, radix: 16);
   ECPoint P = secp256k1.G * d0;
   return P.x.toBigInteger().toRadixString(16);
-}
-
-// helper methods:
-// liftX returns Y for this X
-BigInt liftX(BigInt x) {
-  if (x >= curveP) {
-    throw new Error();
-  }
-  var ySq = (x.modPow(BigInt.from(3), curveP) + BigInt.from(7)) % curveP;
-  var y = ySq.modPow((curveP + BigInt.one) ~/ BigInt.from(4), curveP);
-  if (y.modPow(BigInt.two, curveP) != ySq) {
-    throw new Error();
-  }
-  return y % BigInt.two == BigInt.zero /* even */ ? y : curveP - y;
-}
-
-// this one I don't know what it means
-BigInt getE(ECPoint P, List<int> rX, List<int> m) {
-  return bigFromBytes(
-        taggedHash(
-          "BIP0340/challenge",
-          rX + bigToBytes(P.x.toBigInteger()) + m,
-        ),
-      ) %
-      secp256k1.n;
 }
