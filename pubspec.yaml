@@ -1,15 +1,15 @@
 name: bip340
-version: 0.1.0
+version: 0.0.1
 description: >-
   BIP340 (Schnorr) signature and verification.
 repository: https://github.com/fiatjaf/dart-bip340
 
 environment:
-  sdk: ">=2.10.0-0 <3.0.0"
+  sdk: ">=2.10.0 <3.0.0"
 
 dependencies:
-  crypto: ">=2.1.0"
-  convert: ">=2.1.0"
+  crypto: ">=2.1.0 <3.0.0"
+  convert: ">=2.1.0 <3.0.0"
   pointycastle: "^2.0.1"
 
 dev_dependencies:
