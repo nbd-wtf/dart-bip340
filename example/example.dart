@@ -4,8 +4,8 @@ import 'package:bip340/bip340.dart' as bip340;
 import 'package:csv/csv.dart' as csv;
 
 void main() async {
-  var data = await http.read(
-      Uri.parse("https://raw.githubusercontent.com/bitcoin/bips/master/bip-0340/test-vectors.csv"));
+  var data = await http.read(Uri.parse(
+      "https://raw.githubusercontent.com/bitcoin/bips/master/bip-0340/test-vectors.csv"));
 
   List<List<dynamic>> vectors = csv.CsvToListConverter().convert(
     data,
