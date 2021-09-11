@@ -1,8 +1,6 @@
 import 'dart:core';
-import 'dart:math';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:convert/convert.dart';
 import 'package:convert/convert.dart';
 import 'package:pointycastle/ecc/api.dart';
 
@@ -47,7 +45,7 @@ BigInt getE(ECPoint P, List<int> rX, List<int> m) {
   return bigFromBytes(
         taggedHash(
           "BIP0340/challenge",
-          rX + bigToBytes(P.x.toBigInteger()) + m,
+          rX + bigToBytes(P.x!.toBigInteger()!) + m,
         ),
       ) %
       secp256k1.n;

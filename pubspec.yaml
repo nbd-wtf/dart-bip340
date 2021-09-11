@@ -5,13 +5,13 @@ description: >-
 repository: https://github.com/fiatjaf/dart-bip340
 
 environment:
-  sdk: ">=2.10.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
-  crypto: ">=2.1.0 <3.0.0"
-  convert: ">=2.1.0 <3.0.0"
-  pointycastle: "^2.0.1"
+  crypto: ^3.0.1
+  convert: ^3.0.1
+  pointycastle: ^3.3.4
 
 dev_dependencies:
-  http: "^0.12.2"
-  csv: "^4.1.0"
+  http: ^0.13.3
+  csv: ^5.0.0
