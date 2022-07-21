@@ -29,7 +29,7 @@ Provides these functions:
 
   Produces the public key from a private key
 
-  * `privateKey` must be a 31-bytes hex-encoded string, i.e. 64 characters.
+  * `privateKey` must be a 32-bytes hex-encoded string, i.e. 64 characters.
   * Returns a public key as also 32-bytes hex-encoded.
 
 Made for integration with [Nostr](https://github.com/fiatjaf/nostr).
