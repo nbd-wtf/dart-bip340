@@ -128,5 +128,5 @@ bool verify(String? publicKey, String message, String signature) {
 String getPublicKey(String privateKey) {
   var d0 = BigInt.parse(privateKey, radix: 16);
   ECPoint P = (secp256k1.G * d0)!;
-  return P.x!.toBigInteger()!.toRadixString(16);
+  return P.x!.toBigInteger()!.toRadixString(16).padLeft(64, "0");
 }
