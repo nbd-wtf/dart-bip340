@@ -15,3 +15,4 @@ dependencies:
 dev_dependencies:
   http: ^0.13.3
   csv: ^5.0.0
+  test: ^1.21.4
