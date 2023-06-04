@@ -10,7 +10,7 @@ List<int> taggedHash(String tag, List<int> msg) {
 }
 
 List<int> bigToBytes(BigInt integer) {
-  var hexNum = integer.toRadixString(16);
+  var hexNum = integer.toRadixString(16).padLeft(64, "0");
   if (hexNum.length % 2 == 1) {
     hexNum = '0' + hexNum;
   }
