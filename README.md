@@ -5,7 +5,7 @@ bip340 [![Pub](https://img.shields.io/pub/v/bip340.svg?style=flat)](https://pub.
 
 Implements basic signing and verification functions for the [BIP-340](https://bips.xyz/340) Schnorr Signature Scheme.
 
-It passes the [tests](https://github.com/bitcoin/bips/blob/master/bip-0340/test-vectors.csv) attached to the BIP (`dart run example/example.dart` to run that), but no guarantees are made of anything and _this is not safe cryptography_, do not use to store Bitcoins.
+It passes the [tests](https://github.com/bitcoin/bips/blob/master/bip-0340/test-vectors.csv) attached to the BIP (`dart test` to run that), but no guarantees are made of anything and _this is not safe cryptography_, do not use to store Bitcoins.
 
 Provides these functions:
 
