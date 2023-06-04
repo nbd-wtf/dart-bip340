@@ -11,7 +11,7 @@ import './helpers.dart';
 /// It returns the signature as a string of 64 bytes hex-encoded, i.e., 128 characters.
 /// For more information on BIP-340 see bips.xyz/340.
 String sign(String privateKey, String message, String aux) {
-  List<int> bmessage = hex.decode(message.padLeft(64, '0'));
+  List<int> bmessage = hex.decode(message);
   List<int> baux = hex.decode(aux.padLeft(64, '0'));
   BigInt d0 = BigInt.parse(privateKey, radix: 16);
 
@@ -74,7 +74,7 @@ String sign(String privateKey, String message, String aux) {
 /// It returns true if the signature is valid, false otherwise.
 /// For more information on BIP-340 see bips.xyz/340.
 bool verify(String? publicKey, String message, String signature) {
-  List<int> bmessage = hex.decode(message.padLeft(64, '0'));
+  List<int> bmessage = hex.decode(message);
 
   List<int> bsig = hex.decode(signature.padLeft(128, '0'));
   var r = bsig.sublist(0, 32);
