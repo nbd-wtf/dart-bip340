@@ -1,7 +1,7 @@
 import 'dart:core';
 import 'dart:convert';
+import 'package:bip340/src/hex.dart';
 import 'package:crypto/crypto.dart';
-import 'package:convert/convert.dart';
 import 'package:pointycastle/ecc/api.dart';
 
 List<int> taggedHash(String tag, List<int> msg) {
@@ -10,7 +10,7 @@ List<int> taggedHash(String tag, List<int> msg) {
 }
 
 List<int> bigToBytes(BigInt integer) {
-  return hex.decode(integer.toRadixString(16).padLeft(64, "0"));
+  return hex.decode(integer.toRadixString(16).padLeft(64, "0"), 0, 64);
 }
 
 BigInt bigFromBytes(List<int> bytes) {
