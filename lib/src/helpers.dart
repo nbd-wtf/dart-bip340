@@ -50,3 +50,10 @@ BigInt getE(ECPoint P, List<int> rX, List<int> m) {
       ) %
       secp256k1.n;
 }
+
+ECPoint publicKeyToPoint(String publicKey) {
+  // turn public key into a point (we only get y, but we find out the y)
+  BigInt x = bigFromBytes(hex.decode(publicKey.padLeft(64, '0')));
+  BigInt y = liftX(x);
+  return secp256k1.curve.createPoint(x, y);
+}

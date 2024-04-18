@@ -73,18 +73,8 @@ String sign(String privateKey, String message, String aux) {
 /// signature must be 64-bytes hex-encoded, i.e., 128 characters.
 /// It returns true if the signature is valid, false otherwise.
 /// For more information on BIP-340 see bips.xyz/340.
-bool verify(String? publicKey, String message, String signature) {
-  // turn public key into a point (we only get y, but we find out the y)
-  BigInt x = bigFromBytes(hex.decode(publicKey!.padLeft(64, '0')));
-  BigInt y;
-  try {
-    y = liftX(x);
-  } on Error {
-    return false;
-  }
-  ECPoint P = secp256k1.curve.createPoint(x, y);
-
-  return verifyWithPoint(P, message, signature);
+bool verify(String publicKey, String message, String signature) {
+  return verifyWithPoint(publicKeyToPoint(publicKey), message, signature);
 }
 
 bool verifyWithPoint(ECPoint P, String message, String signature) {
