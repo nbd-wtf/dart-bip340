@@ -74,22 +74,29 @@ String sign(String privateKey, String message, String aux) {
 /// It returns true if the signature is valid, false otherwise.
 /// For more information on BIP-340 see bips.xyz/340.
 bool verify(String publicKey, String message, String signature) {
-  return verifyWithPoint(publicKeyToPoint(publicKey), message, signature);
+  ECPoint point;
+  try {
+    point = publicKeyToPoint(publicKey);
+  } catch (err) {
+    return false;
+  }
+  return verifyWithPoint(point, message, signature);
 }
 
 bool verifyWithPoint(ECPoint P, String message, String signature) {
   List<int> bmessage = hex.decode(message);
 
-  List<int> bsig = hex.decode(signature.padLeft(128, '0'));
-  var r = bsig.sublist(0, 32);
-  var s = bsig.sublist(32, 64);
-  if (bigFromBytes(r) >= curveP || bigFromBytes(s) >= secp256k1.n) {
+  signature = signature.padLeft(128, '0');
+  final r = hex.decode(signature.substring(0, 64));
+  final r_num = BigInt.parse(signature.substring(0, 64), radix: 16);
+  final s_num = BigInt.parse(signature.substring(64, 128), radix: 16);
+  if (r_num >= curveP || s_num >= secp256k1.n) {
     return false;
   }
 
   // not sure what these things mean
   BigInt e = getE(P, r, bmessage);
-  ECPoint sG = (secp256k1.G * bigFromBytes(s))!;
+  ECPoint sG = (secp256k1.G * s_num)!;
   ECPoint eP_ = (P * e)!;
   BigInt ePy = curveP - eP_.y!.toBigInteger()!;
   ECPoint eP = secp256k1.curve.createPoint(eP_.x!.toBigInteger()!, ePy);
@@ -107,7 +114,7 @@ bool verifyWithPoint(ECPoint P, String message, String signature) {
   // and we them in these checks which I don't understand
   if ((Rx.sign == 0 && Ry!.sign == 0) ||
       (Ry! % BigInt.two != BigInt.zero /* is odd */) ||
-      (Rx != bigFromBytes(r))) {
+      (Rx != r_num)) {
     return false;
   }
 
