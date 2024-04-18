@@ -19,7 +19,7 @@ String sign(String privateKey, String message, String aux) {
     throw new Error();
   }
 
-  ECPoint P = (secp256k1.G * d0)!;
+  final ECPoint P = (secp256k1.G * d0)!;
 
   BigInt d;
   if (P.y!.toBigInteger()! % BigInt.two == BigInt.zero) {
@@ -33,9 +33,9 @@ String sign(String privateKey, String message, String aux) {
     throw new Error();
   }
 
-  var t = d ^ bigFromBytes(taggedHash("BIP0340/aux", baux));
+  final t = d ^ bigFromBytes(taggedHash("BIP0340/aux", baux));
 
-  BigInt k0 = bigFromBytes(
+  final BigInt k0 = bigFromBytes(
         taggedHash(
           "BIP0340/nonce",
           bigToBytes(t) + bigToBytes(P.x!.toBigInteger()!) + bmessage,
@@ -47,7 +47,7 @@ String sign(String privateKey, String message, String aux) {
     throw new Error();
   }
 
-  var R = (secp256k1.G * k0)!;
+  final R = (secp256k1.G * k0)!;
 
   BigInt k;
   if (R.y!.toBigInteger()! % BigInt.two == BigInt.zero) {
@@ -57,10 +57,10 @@ String sign(String privateKey, String message, String aux) {
     k = secp256k1.n - k0;
   }
 
-  var rX = bigToBytes(R.x!.toBigInteger()!);
-  var e = getE(P, rX, bmessage);
+  final rX = bigToBytes(R.x!.toBigInteger()!);
+  final e = getE(P, rX, bmessage);
 
-  List<int> signature = rX + bigToBytes((k + e * d) % secp256k1.n);
+  final List<int> signature = rX + bigToBytes((k + e * d) % secp256k1.n);
 
   return hex.encode(signature);
 }
@@ -102,14 +102,14 @@ bool verifyWithPoint(ECPoint P, String message, String signature) {
   ECPoint eP = secp256k1.curve.createPoint(eP_.x!.toBigInteger()!, ePy);
 
   // R is something important
-  ECPoint R = (sG + eP)!;
+  final ECPoint R = (sG + eP)!;
   if (R.isInfinity) {
     return false;
   }
 
   // now that we have R we get its coords
-  var Rx = R.x!.toBigInteger()!;
-  var Ry = R.y!.toBigInteger();
+  final Rx = R.x!.toBigInteger()!;
+  final Ry = R.y!.toBigInteger();
 
   // and we them in these checks which I don't understand
   if ((Rx.sign == 0 && Ry!.sign == 0) ||
@@ -127,7 +127,7 @@ bool verifyWithPoint(ECPoint P, String message, String signature) {
 /// Takes privateKey, a 32-bytes hex-encoded string, i.e. 64 characters.
 /// Returns a public key as also 32-bytes hex-encoded.
 String getPublicKey(String privateKey) {
-  var d0 = BigInt.parse(privateKey, radix: 16);
+  final d0 = BigInt.parse(privateKey, radix: 16);
   ECPoint P = (secp256k1.G * d0)!;
   return P.x!.toBigInteger()!.toRadixString(16).padLeft(64, "0");
 }
