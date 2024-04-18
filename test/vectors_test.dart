@@ -7,9 +7,9 @@ import 'package:test/test.dart';
 void main() async {
   // test bip340 vectors from the bip itself
   var data = await http.read(Uri.parse(
-      "https://raw.githubusercontent.com/bitcoin/bips/master/bip-0340/test-vectors.csv"));
+      "https://raw.githubusercontent.com/bitcoin/bips/afa13249ed45826c2d7086714026c9bc1ccbf963/bip-0340/test-vectors.csv"));
   List<List<dynamic>> vectors = csv.CsvToListConverter().convert(
-    data,
+    data.toLowerCase(),
     shouldParseNumbers: false,
   );
 
@@ -21,7 +21,7 @@ void main() async {
       if (line[3].length > 0) {
         test('Sign $errorMessage', () {
           var sig = bip340.sign(line[1], line[4], line[3]);
-          var expected = line[5].toLowerCase();
+          var expected = line[5];
 
           expect(sig, expected);
         });
@@ -29,7 +29,7 @@ void main() async {
 
       test('Verification $errorMessage', () {
         var ok = bip340.verify(line[2], line[4], line[5]);
-        var expected = line[6].toLowerCase();
+        var expected = line[6];
 
         expect(ok.toString(), expected);
       });

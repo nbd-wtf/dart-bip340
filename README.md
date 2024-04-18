@@ -13,8 +13,8 @@ Provides these functions:
 
   Generates a schnorr signature using the BIP-340 scheme.
 
-  * `privateKey` must be 32-bytes hex-encoded, i.e., 64 characters.
-  * `message` must also be hex-encoded (a hash of the _actual_ message).
+  * `privateKey` must be 32-bytes lowercase hex-encoded, i.e., 64 characters.
+  * `message` must also be lowercase hex-encoded (a hash of the _actual_ message).
   * `aux ` must be 32-bytes random bytes, generated at signature time.
   * Returns the signature as a string of 64 bytes hex-encoded, i.e., 128 characters.
 
@@ -22,9 +22,9 @@ Provides these functions:
 
   Verifies a schnorr signature using the BIP-340 scheme.
 
-  * `publicKey` must be 32-bytes hex-encoded, i.e., 64 characters (if you have a pubkey with 33 bytes just remove the first one).
-  * `message` must also be hex-encoded (a hash of the _actual_ message).
-  * `signature` must be 64-bytes hex-encoded, i.e., 128 characters.
+  * `publicKey` must be 32-bytes lowercase hex-encoded, i.e., 64 characters (if you have a pubkey with 33 bytes just remove the first one).
+  * `message` must also be lowercase hex-encoded (a hash of the _actual_ message).
+  * `signature` must be 64-bytes lowercase hex-encoded, i.e., 128 characters.
   * Returns true if the signature is valid, false otherwise.
 
 3. `String getPublicKey(String privateKey)`

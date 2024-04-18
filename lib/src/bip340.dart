@@ -1,7 +1,7 @@
 import 'dart:core';
-import 'package:convert/convert.dart';
 import 'package:pointycastle/ecc/api.dart';
 import './helpers.dart';
+import './hex.dart';
 
 /// Generates a schnorr signature using the BIP-340 scheme.
 ///
@@ -11,9 +11,9 @@ import './helpers.dart';
 /// It returns the signature as a string of 64 bytes hex-encoded, i.e., 128 characters.
 /// For more information on BIP-340 see bips.xyz/340.
 String sign(String privateKey, String message, String aux) {
-  List<int> bmessage = hex.decode(message);
-  List<int> baux = hex.decode(aux.padLeft(64, '0'));
-  BigInt d0 = BigInt.parse(privateKey, radix: 16);
+  final List<int> bmessage = hex.decode(message, 0, 64);
+  final List<int> baux = hex.decode(aux.padLeft(64, '0'), 0, 64);
+  final BigInt d0 = BigInt.parse(privateKey, radix: 16);
 
   if ((d0 < BigInt.one) || (d0 > (secp256k1.n - BigInt.one))) {
     throw new Error();
@@ -84,10 +84,10 @@ bool verify(String publicKey, String message, String signature) {
 }
 
 bool verifyWithPoint(ECPoint P, String message, String signature) {
-  List<int> bmessage = hex.decode(message);
+  final List<int> bmessage = hex.decode(message, 0, 64);
 
-  signature = signature.padLeft(128, '0');
-  final r = hex.decode(signature.substring(0, 64));
+  // signature = signature.padLeft(128, '0');
+  final r = hex.decode(signature, 0, 64);
   final r_num = BigInt.parse(signature.substring(0, 64), radix: 16);
   final s_num = BigInt.parse(signature.substring(64, 128), radix: 16);
   if (r_num >= curveP || s_num >= secp256k1.n) {
