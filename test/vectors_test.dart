@@ -23,7 +23,7 @@ void main() async {
           var sig = bip340.sign(line[1], line[4], line[3]);
           var expected = line[5];
 
-          expect(sig, expected);
+          expect(sig, expected, reason: "signature doesn't match expected");
         });
       }
 
@@ -31,7 +31,8 @@ void main() async {
         var ok = bip340.verify(line[2], line[4], line[5]);
         var expected = line[6];
 
-        expect(ok.toString(), expected);
+        expect(ok.toString(), expected,
+            reason: "verification result doesn't match expected");
       });
     });
   }
