@@ -74,15 +74,6 @@ String sign(String privateKey, String message, String aux) {
 /// It returns true if the signature is valid, false otherwise.
 /// For more information on BIP-340 see bips.xyz/340.
 bool verify(String? publicKey, String message, String signature) {
-  List<int> bmessage = hex.decode(message);
-
-  List<int> bsig = hex.decode(signature.padLeft(128, '0'));
-  var r = bsig.sublist(0, 32);
-  var s = bsig.sublist(32, 64);
-  if (bigFromBytes(r) >= curveP || bigFromBytes(s) >= secp256k1.n) {
-    return false;
-  }
-
   // turn public key into a point (we only get y, but we find out the y)
   BigInt x = bigFromBytes(hex.decode(publicKey!.padLeft(64, '0')));
   BigInt y;
@@ -92,6 +83,19 @@ bool verify(String? publicKey, String message, String signature) {
     return false;
   }
   ECPoint P = secp256k1.curve.createPoint(x, y);
+
+  return verifyWithPoint(P, message, signature);
+}
+
+bool verifyWithPoint(ECPoint P, String message, String signature) {
+  List<int> bmessage = hex.decode(message);
+
+  List<int> bsig = hex.decode(signature.padLeft(128, '0'));
+  var r = bsig.sublist(0, 32);
+  var s = bsig.sublist(32, 64);
+  if (bigFromBytes(r) >= curveP || bigFromBytes(s) >= secp256k1.n) {
+    return false;
+  }
 
   // not sure what these things mean
   BigInt e = getE(P, r, bmessage);
