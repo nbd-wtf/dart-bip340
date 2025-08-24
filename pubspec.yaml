@@ -8,10 +8,10 @@ environment:
   sdk: '>=2.13.0 <3.0.0'
 
 dependencies:
-  crypto: ^3.0.3
-  pointycastle: ^3.8.0
+  crypto: ^3.0.6
+  pointycastle: ^4.0.0
 
 dev_dependencies:
-  http: ^1.2.1
+  http: ^1.5.0
   csv: ^6.0.0
-  test: ^1.21.4
+  test: ^1.26.3
