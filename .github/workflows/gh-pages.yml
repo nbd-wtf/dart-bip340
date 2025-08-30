@@ -1,0 +1,19 @@
+name: publish to pub.dev
+
+on:
+  push:
+    tags:
+    - 'v[0-9]+.[0-9]+.[0-9]+' # tag pattern on pub.dev: 'v{{version}'
+
+jobs:
+  publish:
+    permissions:
+      id-token: write # required for authentication using OIDC
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@v1
+      - name: dependencies
+        run: dart pub get
+      - name: publish
+        run: dart pub publish --force
